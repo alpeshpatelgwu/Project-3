@@ -5,7 +5,6 @@ import requests
 import json
 import pandas as pd
 import datetime
-from pprint import pprint
 import time
 
 #Prepare to load Data Frames with SQLAlchemy
@@ -54,6 +53,7 @@ def BikerData():
     time_stamp = []
  
     now = datetime.datetime.now()
+    
     time = pd.Timestamp(now.year,now.month,now.day,now.hour,now.minute)
     for index,item in enumerate(data["features"]):
         address.append(data["features"][index]["attributes"]["ADDRESS"])
@@ -72,18 +72,20 @@ def BikerData():
         time_stamp.append(time)
 
     biker_data = {"time":time_stamp,"term_id": term_id, "address": address, "lat": lat, "long": lng, "num_bikes":num_bikes,
-                  "num_empty_docks":num_empty_docks, "obj_id":obj_id,"term_num":term_num,"installed":installed, 
-                  "locked":locked,"install_date":install_date,"removal_date":removal_date,"temp_install":temp_install}
+                "num_empty_docks":num_empty_docks, "obj_id":obj_id,"term_num":term_num,"installed":installed, 
+                "locked":locked,"install_date":install_date,"removal_date":removal_date,"temp_install":temp_install}
+    #print(biker_data["time"][0])
+    biker_df = pd.DataFrame(biker_data)
+    biker_df.to_sql(name='bikeshare', if_exists='append', con=conn, index=False)
 
-    biker_data = pd.DataFrame(biker_data)
-    biker_data.to_sql(name='bikeshare', if_exists='append', con=conn, index=False)
-    
-    with open('bike_data.csv', 'a') as f:
-        biker_data.to_csv(f, header=False,index=False)
+def periodic_work(interval):
+    while(True):
+        BikerData()
+        time.sleep(interval)
 
-while(True):
-    BikerData()
-    time.sleep(60)
+periodic_work(180)
+
+
 
 
 
