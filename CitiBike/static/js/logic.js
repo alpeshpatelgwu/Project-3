@@ -22,6 +22,7 @@ function createMarkers(response) {
 
   // Create a layer group made from the bike markers array, pass it into the createMap function
   createMap(L.layerGroup(bikeMarkers));
+  console.log(bikeMarkers)
 }
 
 function createMap(bikeStations) {
